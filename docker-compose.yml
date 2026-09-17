@@ -16,7 +16,17 @@ services:
   app:
     build: .
     restart: unless-stopped
-    env_file: .env
+    environment:
+      PORT: ${PORT:-3000}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_MODE: ${TELEGRAM_MODE:-webhook}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_PROVIDER: ${AI_PROVIDER:-}
     ports:
       - "3000:3000"
     depends_on:
