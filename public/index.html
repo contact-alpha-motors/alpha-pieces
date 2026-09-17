@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alpha Motors · Pièces</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="ecran-login" class="login" hidden>
+  <h1>Alpha Motors</h1>
+  <p class="ref">Commandes et stock de pièces</p>
+  <form id="f-login" class="card" style="display:grid;gap:10px">
+    <label>Email<input name="email" type="email" autocomplete="username" required></label>
+    <label>Mot de passe<input name="motDePasse" type="password" autocomplete="current-password" required></label>
+    <div class="err" id="login-err"></div>
+    <button class="btn primary">Se connecter</button>
+  </form>
+</div>
+
+<div id="ecran-app" hidden>
+<header>
+  <div><h1>Pièces · commandes & stock</h1><p>Alpha Motors</p></div>
+  <div class="me"><span id="me-nom"></span><span class="tag" id="me-role"></span>
+    <button class="btn" id="b-compte">Mon compte</button><button class="btn" id="b-sortir">Sortir</button></div>
+</header>
+<main>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="cmd" aria-selected="true">Commandes</button>
+    <button role="tab" data-tab="stk" aria-selected="false">Stock</button>
+    <button role="tab" data-tab="his" aria-selected="false">Historique</button>
+    <button role="tab" data-tab="usr" aria-selected="false" hidden id="tab-usr">Utilisateurs</button>
+  </div>
+
+  <section id="v-cmd">
+    <div class="flow" id="flow"></div>
+    <div class="alerts" id="alerts"></div>
+    <div class="bar">
+      <input id="q" type="search" placeholder="Rechercher pièce, véhicule, VIN, référence…" style="flex:1;min-width:220px">
+      <select id="fcmd"><option value="">Toutes les commandes</option></select>
+      <button class="btn" id="b-clear">Tout afficher</button>
+      <button class="btn primary" id="b-add">+ Ajouter une pièce</button>
+    </div>
+    <div class="grid">
+      <div class="tablewrap"><div id="t-pieces" class="state">Chargement…</div></div>
+      <aside><section><h2>Par véhicule</h2><div id="vehs"></div></section></aside>
+    </div>
+  </section>
+
+  <section id="v-stk" hidden>
+    <div class="alerts" id="salerts"></div>
+    <div class="bar">
+      <input id="sq" type="search" placeholder="Rechercher dans le stock…" style="flex:1;min-width:220px">
+      <button class="btn primary" id="b-sadd">+ Ajouter au stock</button>
+    </div>
+    <div class="grid">
+      <div class="tablewrap"><div id="t-stock" class="state">Chargement…</div></div>
+      <aside><section><h2>Comment ça marche</h2><p class="ref" style="margin:0">Une pièce qui passe à <b>Reçue</b> entre en stock ; à <b>Montée</b>, elle en sort. Les pièces achetées hors commande s'ajoutent à la main.</p></section></aside>
+    </div>
+  </section>
+
+  <section id="v-his" hidden>
+    <div class="bar"><select id="htype"><option value="">Tout</option><option value="commande">Commandes</option><option value="stock">Stock</option><option value="utilisateur">Utilisateurs</option></select></div>
+    <div class="card" id="l-his"></div>
+  </section>
+
+  <section id="v-usr" hidden>
+    <div class="bar"><button class="btn primary" id="b-uadd">+ Nouvel utilisateur</button></div>
+    <div class="tablewrap"><div id="t-usr"></div></div>
+  </section>
+</main>
+</div>
+
+<dialog id="d-piece"><form method="dialog" id="f-piece">
+  <h2 style="margin:0" id="d-piece-t">Pièce</h2>
+  <div class="row2"><label>Commande<input name="commande" required list="l-cmds"></label><label>Véhicule<input name="vehicule" required></label></div>
+  <div class="row2"><label>VIN / châssis<input name="vin"></label><label>Référence<input name="ref"></label></div>
+  <label>Désignation<input name="designation" required></label>
+  <div class="row2"><label>Emplacement<input name="emplacement"></label><label>Fournisseur<input name="fournisseur"></label></div>
+  <div class="row2"><label>Quantité<input name="qte" type="number" min="0" required></label><label>Prix unitaire (FCFA)<input name="prix" type="number" min="0"></label></div>
+  <div class="row2"><label>Statut<select name="statut" id="s-statut"></select></label><label>Date prévue<input name="date_prevue" type="date"></label></div>
+  <label>Note<textarea name="note" rows="2"></textarea></label>
+  <div class="err" id="piece-err"></div>
+  <div style="display:flex;gap:8px;justify-content:space-between">
+    <button class="btn" type="button" id="b-pdel" style="color:var(--late)">Supprimer</button>
+    <span><button class="btn" value="cancel" formnovalidate>Annuler</button> <button class="btn primary" value="ok">Enregistrer</button></span>
+  </div>
+  <datalist id="l-cmds"></datalist>
+</form></dialog>
+
+<dialog id="d-stock"><form method="dialog" id="f-stock">
+  <h2 style="margin:0" id="d-stock-t">Article en stock</h2>
+  <label>Désignation<input name="designation" required></label>
+  <div class="row2"><label>Référence<input name="ref"></label><label>Véhicule compatible<input name="vehicule"></label></div>
+  <div class="row2"><label>Quantité<input name="qte" type="number" min="0" required></label><label>Seuil d'alerte<input name="seuil" type="number" min="0"></label></div>
+  <label>Emplacement magasin (rayon, étagère)<input name="rayon"></label>
+  <div class="err" id="stock-err"></div>
+  <div style="display:flex;gap:8px;justify-content:space-between">
+    <button class="btn" type="button" id="b-sdel" style="color:var(--late)">Supprimer</button>
+    <span><button class="btn" value="cancel" formnovalidate>Annuler</button> <button class="btn primary" value="ok">Enregistrer</button></span>
+  </div>
+</form></dialog>
+
+<dialog id="d-usr"><form method="dialog" id="f-usr">
+  <h2 style="margin:0" id="d-usr-t">Utilisateur</h2>
+  <label>Nom<input name="nom" required></label>
+  <label>Email<input name="email" type="email" required></label>
+  <div class="row2">
+    <label>Rôle<select name="role"><option value="atelier">Atelier</option><option value="magasinier">Magasinier</option><option value="boss">Boss</option><option value="admin">Admin (IT)</option></select></label>
+    <label>Actif<select name="actif"><option value="true">Oui</option><option value="false">Non</option></select></label>
+  </div>
+  <label><span id="u-mdp-l">Mot de passe (8 caractères min.)</span><input name="motDePasse" type="password" minlength="8" autocomplete="new-password"></label>
+  <label style="display:flex;gap:6px;align-items:center" id="u-delier"><input type="checkbox" name="delierTelegram"> Délier le compte Telegram</label>
+  <div class="err" id="usr-err"></div>
+  <div style="text-align:right"><button class="btn" value="cancel" formnovalidate>Annuler</button> <button class="btn primary" value="ok">Enregistrer</button></div>
+</form></dialog>
+
+<dialog id="d-compte"><div style="display:grid;gap:12px">
+  <h2 style="margin:0">Mon compte</h2>
+  <div class="card" style="margin:0">
+    <h2>Telegram</h2>
+    <p class="ref" id="tg-etat"></p>
+    <button class="btn primary" id="b-tg">Générer un code de liaison</button>
+    <div id="tg-code" hidden><div class="code" id="tg-code-v"></div>
+      <p class="ref" id="tg-instr"></p></div>
+  </div>
+  <form class="card" id="f-mdp" style="margin:0;display:grid;gap:8px">
+    <h2>Changer le mot de passe</h2>
+    <label>Actuel<input name="ancien" type="password" required autocomplete="current-password"></label>
+    <label>Nouveau<input name="nouveau" type="password" minlength="8" required autocomplete="new-password"></label>
+    <div class="err" id="mdp-err"></div>
+    <button class="btn">Modifier</button>
+  </form>
+  <div style="text-align:right"><button class="btn" id="b-compte-f">Fermer</button></div>
+</div></dialog>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "alpha-pieces",
+  "version": "1.0.0",
+  "description": "Suivi des commandes et du stock de pièces — Alpha Motors (web + Telegram + IA)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "migrate": "node src/scripts/migrate.js",
+    "create-admin": "node src/scripts/create-admin.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "grammy": "^1.30.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^4.77.0",
+    "pg": "^8.13.1"
+  }
+}
