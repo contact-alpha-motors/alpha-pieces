@@ -10,9 +10,14 @@ import { creerBot } from "./bot/telegram.js";
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.set("trust proxy", 1);
-app.use(helmet({ contentSecurityPolicy: { directives: {
-  "default-src": ["'self'"], "script-src": ["'self'"], "style-src": ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
-  "font-src": ["'self'", "https://fonts.gstatic.com"], "img-src": ["'self'", "data:"] } } }));
+// hsts/upgrade-insecure-requests désactivés ici : l'app tourne aussi en HTTP direct (test, avant mise en place du domaine/nginx).
+// Le reverse proxy ajoutera ces en-têtes une fois le HTTPS réel en place devant l'app.
+app.use(helmet({
+  hsts: false,
+  contentSecurityPolicy: { directives: {
+    "default-src": ["'self'"], "script-src": ["'self'"], "style-src": ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
+    "font-src": ["'self'", "https://fonts.gstatic.com"], "img-src": ["'self'", "data:"], "upgrade-insecure-requests": null } },
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
