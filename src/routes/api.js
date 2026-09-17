@@ -13,7 +13,7 @@ const h = fn => (req, res) => Promise.resolve(fn(req, res)).then(d => res.json(d
 r.post("/connexion", limiterConnexion, h(async (req, res) => {
   const u = await U.verifierMotDePasse(req.body.email, req.body.motDePasse);
   if (!u) throw Object.assign(new Error("Email ou mot de passe incorrect."), { status: 401 });
-  ouvrirSession(res, u);
+  ouvrirSession(req, res, u);
   return { nom: u.nom, role: u.role };
 }));
 r.post("/deconnexion", h(async (req, res) => { fermerSession(res); }));

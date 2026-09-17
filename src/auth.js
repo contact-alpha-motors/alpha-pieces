@@ -7,9 +7,9 @@ const secret = () => {
   return process.env.JWT_SECRET;
 };
 
-export function ouvrirSession(res, user) {
+export function ouvrirSession(req, res, user) {
   const token = jwt.sign({ uid: user.id }, secret(), { expiresIn: "7d" });
-  res.cookie(COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 7 * 864e5 });
+  res.cookie(COOKIE, token, { httpOnly: true, sameSite: "lax", secure: req.secure, maxAge: 7 * 864e5 });
 }
 export function fermerSession(res) { res.clearCookie(COOKIE); }
 
