@@ -3,9 +3,9 @@
 Application web + bot Telegram + assistant IA (GLM 5.3 Flash via OpenRouter), sur une seule base PostgreSQL.
 
 ```
- Navigateur ──┐                                  ┌── PostgreSQL (pièces, stock, historique, utilisateurs)
-              ├── nginx proxy manager (HTTPS) ── App Node.js ──┤
- Telegram  ───┘        /telegram/webhook         └── OpenRouter (IA, texte + photos)
+ Navigateur ──┐                       ┌── PostgreSQL (pièces, stock, historique, utilisateurs)
+              ├── nginx (HTTPS) ── App Node.js ──┤
+ Telegram  ───┘   /telegram/webhook   └── OpenRouter (IA, texte + photos)
 ```
 
 Toute la logique métier est dans `src/services/` : le site, le bot et l'IA appliquent exactement les mêmes règles et écrivent le même historique.
@@ -26,9 +26,8 @@ Règle de stock : une pièce passée à **Reçue** entre en stock, passée à **
 
 ## Prérequis
 
-- Un VPS Linux avec **Docker**, **Docker Compose**, **Portainer**, et **nginx proxy manager** (NPM) déjà en place pour gérer les ports 80/443 et le HTTPS des différents sites.
-- Un réseau Docker externe partagé entre NPM et cette stack (ex. `proxy`) : `docker network create proxy` s'il n'existe pas encore, puis attacher le conteneur NPM à ce réseau (Portainer → conteneur NPM → Network → connect).
-- Un nom de domaine pointant vers l'IP du VPS (ex. `pieces.alphamotors.cm`). Telegram exige HTTPS pour le webhook ; c'est NPM qui obtient le certificat Let's Encrypt.
+- Un VPS Linux avec **Docker**, **Docker Compose** et un reverse proxy déjà en place (nginx) pour gérer les ports 80/443 et le HTTPS des différents sites.
+- Un nom de domaine pointant vers l'IP du VPS (ex. `pieces.alphamotors.cm`). Telegram exige HTTPS pour le webhook ; c'est le reverse proxy qui obtient le certificat Let's Encrypt.
 - Un bot Telegram : dans Telegram, parler à **@BotFather** → `/newbot` → récupérer le token.
 - Une clé **OpenRouter** (openrouter.ai → Keys), avec un peu de crédit.
 
@@ -49,11 +48,7 @@ docker compose logs -f app        # attendre « Alpha Pièces sur le port 3000 �
 docker compose exec app node src/scripts/create-admin.js "Nom IT" it@alphamotors.cm "MotDePasseSolide"
 ```
 
-Dans **nginx proxy manager**, créer un Proxy Host :
-- Domain: le domaine du site (ex. `pieces.alphamotors.cm`)
-- Forward Hostname/IP: `app` (nom du service, résolu via le réseau Docker `proxy`)
-- Forward Port: `3000`
-- Activer SSL → demander un certificat Let's Encrypt, forcer HTTPS.
+L'app écoute sur le port `3000` du VPS. Configurer le reverse proxy existant pour pointer le domaine (ex. `pieces.alphamotors.cm`) vers `127.0.0.1:3000` avec HTTPS (Let's Encrypt).
 
 Au premier démarrage, la base est créée et les données initiales sont importées (bon de commande du 11/09/2026 et facture M6 Plus). Pour démarrer à vide : `SEED=non` dans `.env` avant le premier lancement.
 

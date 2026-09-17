@@ -17,16 +17,11 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
+    ports:
+      - "3000:3000"
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - default
-      - proxy
 
 volumes:
   pgdata:
-
-networks:
-  proxy:
-    external: true
